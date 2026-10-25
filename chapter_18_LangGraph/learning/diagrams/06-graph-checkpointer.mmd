@@ -1,0 +1,15 @@
+%%{init: {"look": "handDrawn", "handDrawnSeed": 7, "themeVariables": {"fontFamily": "Helvetica Neue, Helvetica, Arial", "fontSize": "19px", "edgeLabelBackground": "#ffffff", "primaryBorderColor": "#2B2B2B", "lineColor": "#2B2B2B"}, "themeCSS": ".edgeLabel rect { opacity: 1 !important; } .edgeLabel text { font-weight: 600; }"}}%%
+graph LR
+  I["invoke with a thread_id"] --> APP["graph: record_run"]
+  APP -->|"saves after every step"| CK[("InMemorySaver")]
+  CK -->|"thread: nightly-regression"| T1[("runs 1, 2, 3")]
+  CK -->|"thread: smoke"| T2[("runs 1")]
+  CK -.->|"next invoke loads it"| APP
+  class I,APP step
+  class CK,T1,T2 bag
+  classDef step fill:#F7D774,color:#1F2937
+  classDef fork fill:#F4A3B5,color:#1F2937
+  classDef bag fill:#9ED8A8,color:#1F2937
+  classDef human fill:#FDBA74,color:#1F2937
+  classDef llm fill:#A9B7FA,color:#1F2937
+  classDef term fill:#FFFFFF,color:#1F2937

@@ -1,0 +1,19 @@
+%%{init: {"look": "handDrawn", "handDrawnSeed": 7, "themeVariables": {"fontFamily": "Helvetica Neue, Helvetica, Arial", "fontSize": "19px", "edgeLabelBackground": "#ffffff", "primaryBorderColor": "#2B2B2B", "lineColor": "#2B2B2B"}, "themeCSS": ".edgeLabel rect { opacity: 1 !important; } .edgeLabel text { font-weight: 600; }"}}%%
+graph LR
+  S(("START")) --> D["detect"]
+  D --> A["ask_approval: interrupt()"]
+  A -.->|"1. pauses and asks you"| U["You"]
+  U -.->|"2. you answer"| A
+  A -->|"yes"| Q["quarantine"]
+  A -->|"no"| K["skip"]
+  Q --> E(("END"))
+  K --> E
+  class D,Q,K step
+  class A,U human
+  class S,E term
+  classDef step fill:#F7D774,color:#1F2937
+  classDef fork fill:#F4A3B5,color:#1F2937
+  classDef bag fill:#9ED8A8,color:#1F2937
+  classDef human fill:#FDBA74,color:#1F2937
+  classDef llm fill:#A9B7FA,color:#1F2937
+  classDef term fill:#FFFFFF,color:#1F2937

@@ -1,0 +1,23 @@
+%%{init: {"look": "handDrawn", "handDrawnSeed": 7, "themeVariables": {"fontFamily": "Helvetica Neue, Helvetica, Arial", "fontSize": "19px", "edgeLabelBackground": "#ffffff", "primaryBorderColor": "#2B2B2B", "lineColor": "#2B2B2B"}, "themeCSS": ".edgeLabel rect { opacity: 1 !important; } .edgeLabel text { font-weight: 600; }"}}%%
+graph TD
+  subgraph CH5["Chapter 5: LangFlow"]
+    direction LR
+    A1["Chat Input"] --> A2["Flaky Analyzer"] --> A3["Chat Output"]
+  end
+  subgraph CH18["Chapter 18: LangGraph"]
+    direction LR
+    B1["load and compare"] -->|"flaky"| B2["ask a human"]
+    B1 -->|"clean"| B4["report"]
+    B2 --> B3["LLM explains"]
+    B3 --> B4
+  end
+  CH5 ~~~ CH18
+  class A1,A2,A3,B1,B4 step
+  class B2 human
+  class B3 llm
+  classDef step fill:#F7D774,color:#1F2937
+  classDef fork fill:#F4A3B5,color:#1F2937
+  classDef bag fill:#9ED8A8,color:#1F2937
+  classDef human fill:#FDBA74,color:#1F2937
+  classDef llm fill:#A9B7FA,color:#1F2937
+  classDef term fill:#FFFFFF,color:#1F2937

@@ -1,0 +1,20 @@
+%%{init: {"look": "handDrawn", "handDrawnSeed": 7, "themeVariables": {"fontFamily": "Helvetica Neue, Helvetica, Arial", "fontSize": "19px", "edgeLabelBackground": "#ffffff", "primaryBorderColor": "#2B2B2B", "lineColor": "#2B2B2B"}, "themeCSS": ".edgeLabel rect { opacity: 1 !important; } .edgeLabel text { font-weight: 600; }"}}%%
+graph TD
+  S(("START")) --> L["load_runs"]
+  L --> C["compare"]
+  C -->|"no flaky tests"| R["report"]
+  C -->|"flaky found"| A["approve: interrupt()"]
+  A -->|"GROQ key set"| X["explain: LLM notes"]
+  A -->|"no key or --no-llm"| R
+  X --> R
+  R --> E(("END"))
+  class L,C,R step
+  class A human
+  class X llm
+  class S,E term
+  classDef step fill:#F7D774,color:#1F2937
+  classDef fork fill:#F4A3B5,color:#1F2937
+  classDef bag fill:#9ED8A8,color:#1F2937
+  classDef human fill:#FDBA74,color:#1F2937
+  classDef llm fill:#A9B7FA,color:#1F2937
+  classDef term fill:#FFFFFF,color:#1F2937

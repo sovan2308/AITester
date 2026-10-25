@@ -4,6 +4,8 @@ set -euo pipefail
 
 DOCKER="/Applications/Docker.app/Contents/Resources/bin/docker"
 DATA="/Users/promode/Documents/AITesterBlueprint3x/chapter_05_AI_Agents_LangFlow/langflow-data"
+CHAPTER="/Users/promode/Documents/AITesterBlueprint3x/chapter_05_AI_Agents_LangFlow"
+IMAGE="langflowai/langflow:1.12.3"
 NAME="langflow"
 URL="http://localhost:7860"
 
@@ -25,9 +27,11 @@ else
   "$DOCKER" run -d --name "$NAME" \
     -p 7860:7860 \
     -v "$DATA":/app/langflow-data \
+    -v "$CHAPTER":/test-results:ro \
     -e LANGFLOW_CONFIG_DIR=/app/langflow-data \
     -e LANGFLOW_SAVE_DB_IN_CONFIG_DIR=true \
-    langflowai/langflow:latest >/dev/null
+    -e LANGFLOW_AUTO_LOGIN=true \
+    "$IMAGE" >/dev/null
 fi
 
 echo "==> Waiting for Langflow to be ready..."

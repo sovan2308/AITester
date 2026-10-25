@@ -1,0 +1,110 @@
+{
+ "config": {},
+ "errors": [],
+ "suites": [
+  {
+   "title": "suite.spec.ts",
+   "file": "suite.spec.ts",
+   "specs": [
+    {
+     "title": "t1",
+     "ok": true,
+     "file": "suite.spec.ts",
+     "line": 1,
+     "id": "t1",
+     "tests": [
+      {
+       "status": "expected",
+       "results": [
+        {
+         "status": "passed",
+         "duration": 10
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "t2",
+     "ok": true,
+     "file": "suite.spec.ts",
+     "line": 1,
+     "id": "t2",
+     "tests": [
+      {
+       "status": "expected",
+       "results": [
+        {
+         "status": "passed",
+         "duration": 10
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "t3",
+     "ok": true,
+     "file": "suite.spec.ts",
+     "line": 1,
+     "id": "t3",
+     "tests": [
+      {
+       "status": "expected",
+       "results": [
+        {
+         "status": "passed",
+         "duration": 10
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "t4",
+     "ok": true,
+     "file": "suite.spec.ts",
+     "line": 1,
+     "id": "t4",
+     "tests": [
+      {
+       "status": "expected",
+       "results": [
+        {
+         "status": "passed",
+         "duration": 10
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "t5",
+     "ok": true,
+     "file": "suite.spec.ts",
+     "line": 1,
+     "id": "t5",
+     "tests": [
+      {
+       "status": "expected",
+       "results": [
+        {
+         "status": "passed",
+         "duration": 10
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "suites": []
+  }
+ ],
+ "stats": {
+  "expected": 5,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0,
+  "duration": 100
+ }
+}

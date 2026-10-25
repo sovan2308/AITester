@@ -82,8 +82,4 @@ screenshots/
 auth_state.json
 test_plan_*.json
 **/rag_corpus/.index.npz
-
-# Chapter 18 generated test artifacts
-chapter_18_LangGraph/src/report.xml
-chapter_18_LangGraph/capstone/reports/
 .gstack/

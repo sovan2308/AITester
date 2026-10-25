@@ -1,0 +1,23 @@
+%%{init: {"look": "handDrawn", "handDrawnSeed": 7, "themeVariables": {"fontFamily": "Helvetica Neue, Helvetica, Arial", "fontSize": "19px", "edgeLabelBackground": "#ffffff", "primaryBorderColor": "#2B2B2B", "lineColor": "#2B2B2B"}, "themeCSS": ".edgeLabel rect { opacity: 1 !important; } .edgeLabel text { font-weight: 600; }"}}%%
+graph TD
+  subgraph PLAN["1. Plan the tests"]
+    direction LR
+    S(("START")) --> F["fetch: Jira"] --> A["analyse"] --> P["plan: test cases"] --> R{"review"}
+    R -->|"fix it once"| P
+  end
+  subgraph TEST["2. Run and report"]
+    direction LR
+    X["execute: Playwright"] -->|"failures"| T["triage"] --> W["write_report"] --> E(("END"))
+    X -->|"all green"| W
+  end
+  PLAN -->|"review says ok"| TEST
+  class F,X,W step
+  class A,P,T llm
+  class R fork
+  class S,E term
+  classDef step fill:#F7D774,color:#1F2937
+  classDef fork fill:#F4A3B5,color:#1F2937
+  classDef bag fill:#9ED8A8,color:#1F2937
+  classDef human fill:#FDBA74,color:#1F2937
+  classDef llm fill:#A9B7FA,color:#1F2937
+  classDef term fill:#FFFFFF,color:#1F2937

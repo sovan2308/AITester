@@ -1,0 +1,22 @@
+%%{init: {"look": "handDrawn", "handDrawnSeed": 7, "themeVariables": {"fontFamily": "Helvetica Neue, Helvetica, Arial", "fontSize": "19px", "edgeLabelBackground": "#ffffff", "primaryBorderColor": "#2B2B2B", "lineColor": "#2B2B2B"}, "themeCSS": ".edgeLabel rect { opacity: 1 !important; } .edgeLabel text { font-weight: 600; }"}}%%
+graph TD
+  S(("START")) --> N1["Node: a step"]
+  N1 -->|"edge"| F{"Conditional edge"}
+  F -->|"loop back"| N1
+  F -->|"continue"| N2["Node: next step"]
+  N2 --> P["Interrupt: human approval"]
+  P --> E(("END"))
+  BAG[("State: shared data")] -.->|"read and update"| N1
+  BAG -.->|"read and update"| N2
+  SAVE[("Checkpointer")] -.->|"saves every step"| P
+  class N1,N2 step
+  class F fork
+  class BAG,SAVE bag
+  class P human
+  class S,E term
+  classDef step fill:#F7D774,color:#1F2937
+  classDef fork fill:#F4A3B5,color:#1F2937
+  classDef bag fill:#9ED8A8,color:#1F2937
+  classDef human fill:#FDBA74,color:#1F2937
+  classDef llm fill:#A9B7FA,color:#1F2937
+  classDef term fill:#FFFFFF,color:#1F2937

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 18 LangGraph: what we have built</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; line-height: 1.55; color: #222; }
+    pre  { background: #f4f4f4; padding: 1rem; overflow-x: auto; border-radius: 6px; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    h1, h2, h3 { line-height: 1.25; }
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 6px 10px; }
+  </style>
+</head>
+<body>
+<h1>Chapter 18 LangGraph: what we have built</h1>
+<p>Branch <code>langgraph-learn</code>. Snapshot taken while the capstone is still being finished. Nothing is committed yet.</p>
+
+<h2>1. Ten lesson scripts (done, all run)</h2>
+<table>
+  <tr><th>#</th><th>Script</th><th>Teaches</th><th>Key?</th></tr>
+  <tr><td>001</td><td><code>001_Hello_Graph.py</code></td><td>state, one node, START/END</td><td>no</td></tr>
+  <tr><td>002</td><td><code>002_Linear_Pipeline.py</code></td><td>partial updates, stream()</td><td>no</td></tr>
+  <tr><td>003</td><td><code>003_Conditional_Edge.py</code></td><td>forks with a router function</td><td>no</td></tr>
+  <tr><td>004</td><td><code>004_Loop_Retry.py</code></td><td>loops with a cap</td><td>no</td></tr>
+  <tr><td>005</td><td><code>005_Parallel_Reducer.py</code></td><td>fan-out, reducers</td><td>no</td></tr>
+  <tr><td>006</td><td><code>006_Checkpointer_Memory.py</code></td><td>memory per thread_id</td><td>no</td></tr>
+  <tr><td>007</td><td><code>007_Human_In_The_Loop.py</code></td><td>interrupt() and resume</td><td>no</td></tr>
+  <tr><td>008</td><td><code>008_LLM_Node.py</code></td><td>LLM inside a node</td><td>Groq</td></tr>
+  <tr><td>009</td><td><code>009_ReAct_Agent_Tools.py</code></td><td>agent loop by hand</td><td>Groq</td></tr>
+  <tr><td>010</td><td><code>010_Flaky_Analyzer_Graph.py</code></td><td>chapter 5 flaky analyzer as a graph</td><td>optional</td></tr>
+</table>
+
+<h2>2. ELI5 picture book (done, being restyled)</h2>
+<ul>
+  <li><code>chapter_18_LangGraph/learning/index.html</code> plus 10 lesson pages: big pictures, few words, verified output.</li>
+  <li>21 diagrams from the <code>/diagram</code> skill in <code>learning/diagrams/</code>: <code>.mmd</code>, <code>.excalidraw</code>, <code>.svg</code>, <code>.png</code>.</li>
+  <li>Published (private): <a href="https://claude.ai/artifact/GVwf7jnVDyfPBPwx5Zy68M">LangGraph Picture Book</a></li>
+  <li><b>Queued:</b> hand-drawn restyle (graphs re-rendered from the .excalidraw scenes, kid pictures illustrated by Codex) and a capstone page.</li>
+</ul>
+
+<h2>3. Capstone: Jira to tested report (in progress)</h2>
+<pre><code>fetch (Jira VWO-105) -&gt; analyse -&gt; plan (test plan + cases) -&gt; review
+   review --(problems, 1 rewrite max)--&gt; plan
+   review --(approved)--&gt; execute (Playwright on TTACart) -&gt; triage failures -&gt; HTML report (+ email)
+worker.py: every N minutes, JQL -&gt; run the graph per ticket -&gt; label it qa-auto-done</code></pre>
+<table>
+  <tr><th>File</th><th>Lines</th><th>Job</th><th>Status</th></tr>
+  <tr><td><code>jira.py</code></td><td>~60</td><td>fetch / JQL search / label via REST (stdlib only)</td><td>written; live API blocked by an expired token</td></tr>
+  <tr><td><code>executor.py</code></td><td>~75</td><td>runs LLM-written steps; allowlist of real TTACart pages and ids</td><td>verified by check.py</td></tr>
+  <tr><td><code>pipeline.py</code></td><td>~190</td><td>the 7-node LangGraph</td><td>plan step being fixed (see below)</td></tr>
+  <tr><td><code>report.py</code></td><td>~65</td><td>self-contained HTML report, optional email</td><td>verified by check.py</td></tr>
+  <tr><td><code>worker.py</code></td><td>~33</td><td>24x7 JQL poller</td><td>written, not yet run</td></tr>
+  <tr><td><code>check.py</code></td><td>~100</td><td>offline check against a fake TTACart on localhost</td><td>all checks pass</td></tr>
+  <tr><td><code>fixtures/VWO-105.json</code></td><td>-</td><td>the real TTACart PRD, pulled via the Atlassian MCP</td><td>done</td></tr>
+</table>
+
+<h3>Problems found and fixed so far</h3>
+<ul>
+  <li>Jira API token in chapter 13 is expired: <code>/myself</code> returns 401. The code now says so in plain words. Refresh it at id.atlassian.com.</li>
+  <li>Groq rejected a plan where the model wrote <code>"value": 1</code> instead of a string. Numbers are now accepted and stored as text.</li>
+  <li>The model used ids on the wrong page (a checkout label on the cart page). The prompt now lists the ids on each page.</li>
+  <li>An empty cart removes the badge instead of showing 0. The prompt now says to check it with <code>count 0</code>.</li>
+</ul>
+
+<h3>Open right now</h3>
+<p>The generated plan JSON is still cut off after about 4 cases, even with 3 retries. The output length is being capped before the plan finishes. Next fix: raise the output token limit and lower the model's reasoning effort for the plan call, then run the whole graph end to end.</p>
+
+<h3>Still to do</h3>
+<ul>
+  <li>Full pipeline run and report, then a <code>worker.py</code> pass.</li>
+  <li>Capstone README: how it works, run guide, hosting 24x7 (cron, GitHub Actions, always-on loop).</li>
+  <li>Picture book: capstone page and hand-drawn restyle with Codex illustrations; republish.</li>
+  <li>The live TTACart run needs a login with the demo password, which my rules only allow on localhost. It will be one command for you to run.</li>
+</ul>
+</body>
+</html>

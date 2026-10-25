@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LangGraph Visual Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F7F9FC; --surface:#FFFFFF; --ink:#13294B; --body:#2A3A56; --muted:#5F7090; --line:#D9E1EC;
+  --paper:#FFFFFF;  /* the illustrations are drawn on pure white, so they sit seamlessly on the plates */
+  --blue:#2A66D6; --blue-soft:#E7EFFC; --green:#1E8A5A; --green-soft:#E4F4EB; --amber:#B8741A; --amber-soft:#FFF5E1;
+  --code-bg:#13294B; --code-fg:#E6EDF7; --code-dim:#8FA3C4; --prompt:#8DE0B9;
+  --job:#FFF4CC; --job-edge:#C9A227; --fork:#FFE0E6; --fork-edge:#D9486B;
+  --memory:#D8F3DC; --memory-edge:#2D8A4E; --human:#FFD6A5; --human-edge:#E07A1F;
+  --ai:#E0E7FF; --ai-edge:#4F46E5;
+  --radius:10px;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--body);
+  font:400 17px/1.6 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  padding-inline:20px}
+code,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+a{color:var(--blue);text-underline-offset:3px}
+a:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:4px}
+.wrap{max-width:980px;margin:0 auto;padding-block:24px 72px;display:grid;gap:40px}
+.wrap>*,.pics>*,.plate>*,.try>*,.book-lesson>*{min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  padding-block:6px 14px;border-bottom:1px solid var(--line)}
+.brand{font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:.2px}
+.where{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.hero{display:grid;gap:14px}
+.eyebrow{margin:0;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;
+  font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.eyebrow code{text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink);font-weight:500}
+h1{margin:0;color:var(--ink);font-weight:700;font-size:clamp(34px,5.2vw,54px);line-height:1.08;
+  letter-spacing:-.5px;text-wrap:balance}
+.idea{margin:0;max-width:46ch;font-size:clamp(19px,2.3vw,23px);line-height:1.45;font-weight:500;
+  color:var(--body);text-wrap:pretty}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;letter-spacing:.4px;
+  text-transform:none;font-weight:600;border:1px solid transparent}
+.k-none{background:var(--green-soft);color:var(--green);border-color:#BFE3CF}
+.k-req{background:var(--amber-soft);color:var(--amber);border-color:#F2D7A6}
+.k-opt{background:var(--blue-soft);color:var(--blue);border-color:#C6D8F7}
+.plate{margin:0;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px 22px 20px;display:grid;gap:14px}
+.label{margin:0;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.art{overflow-x:auto;display:flex;justify-content:center}
+.art img{display:block;width:100%;height:auto}
+.art img.graph{mix-blend-mode:multiply}  /* the rendered graphs have a white ground; multiply drops it onto the paper */
+.plate figcaption{font-size:clamp(17px,1.9vw,19px);line-height:1.5;color:var(--body);max-width:62ch}
+.pics{display:grid;gap:22px}
+h2{margin:0 0 14px;color:var(--ink);font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.remember ul{list-style:none;margin:0;padding:0;display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.remember li{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 16px;color:var(--ink);font-weight:500;line-height:1.4;display:flex;gap:10px;align-items:flex-start}
+.remember li b{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  background:var(--blue-soft);color:var(--blue);font-size:13px;font-variant-numeric:tabular-nums}
+.term{margin:0;background:var(--code-bg);color:var(--code-fg);border-radius:var(--radius);padding:18px 20px;
+  overflow-x:auto;font-size:14px;line-height:1.6;white-space:pre}
+.term .cmd{color:var(--prompt)}
+.term .out{color:var(--code-fg)}
+.fine{margin:10px 0 0;font-size:14px;color:var(--muted)}
+.turn{display:grid;grid-template-columns:1fr 1fr;gap:14px;border-top:1px solid var(--line);padding-top:22px}
+.turn a{display:grid;gap:2px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--surface);text-decoration:none;color:var(--ink);font-weight:600}
+.turn a small{font-weight:500;color:var(--muted);font-size:13px}
+.turn .next{text-align:right;grid-column:2}
+.turn a:hover{border-color:var(--blue)}
+.keys{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.keys li{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;color:var(--ink);font-weight:600;font-size:15px}
+.keys li span{font-weight:400;color:var(--muted)}
+.sw{width:22px;height:22px;border-radius:6px;border:2px solid}
+.sw.job{background:var(--job);border-color:var(--job-edge)} .sw.fork{background:var(--fork);border-color:var(--fork-edge)}
+.sw.memory{background:var(--memory);border-color:var(--memory-edge)} .sw.human{background:var(--human);border-color:var(--human-edge)}
+.sw.ai{background:var(--ai);border-color:var(--ai-edge)}
+.lessons{list-style:none;margin:0;padding:0;display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{height:100%;display:grid;grid-template-rows:auto auto 1fr auto;gap:10px;padding:18px 18px 16px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);text-decoration:none;color:var(--body)}
+.card:hover{border-color:var(--blue)}
+.card .num{font-size:13px;font-weight:700;color:var(--blue);letter-spacing:.8px;font-variant-numeric:tabular-nums}
+.card .t{font-size:20px;font-weight:700;color:var(--ink);line-height:1.2}
+.card .thumb{display:block;border-radius:8px;overflow:hidden;background:var(--bg)}
+.card .thumb img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
+.card .i{margin:0;font-size:15px;line-height:1.45}
+.card .badge{justify-self:start;align-self:start}
+.book-lesson{display:grid;gap:40px;padding-top:40px;border-top:2px solid var(--line)}
+.lessons li.featured{grid-column:1/-1}
+.lessons li.featured .card{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto 1fr;column-gap:22px}
+.lessons li.featured .thumb{grid-column:1;grid-row:1/span 4}
+.lessons li.featured .card>:not(.thumb){grid-column:2}
+@media (max-width:760px){
+  .remember ul{grid-template-columns:1fr}
+  .lessons{grid-template-columns:1fr}
+  .lessons li.featured .card{grid-template-columns:1fr;grid-template-rows:none}
+  .lessons li.featured .thumb,.lessons li.featured .card>:not(.thumb){grid-column:auto;grid-row:auto}
+}
+@media (max-width:640px){
+  body{font-size:16px;padding-inline:16px}
+  .plate{padding:14px 14px 16px}
+  .art{justify-content:flex-start}
+  .art img{min-width:var(--minw)}
+  .turn{grid-template-columns:1fr}
+  .turn .next{grid-column:1}
+}
+@media (prefers-reduced-motion:no-preference){ .card,.turn a{transition:border-color .15s ease} }
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="top"><a class="brand" href="index.html">LangGraph Visual Guide</a><span class="where">Chapter 18</span></header>
+
+<section class="hero">
+  <p class="eyebrow">Chapter 18 <span>AI Tester Blueprint</span></p>
+  <h1>LangGraph Visual Guide</h1>
+  <p class="idea">Eleven lessons, from a first graph to a production QA pipeline. Each pairs a real-world example with the exact graph and the code you can run.</p>
+</section>
+<figure class="plate">
+  <p class="label">LangGraph at a glance</p>
+  <div class="art"><img class="graph" src="diagrams/00-overview.png" alt="LangGraph at a glance: nodes, a conditional edge with a loop back, an interrupt for human approval, the shared state and the checkpointer" width="469" height="914" style="max-width:469px;--minw:469px" loading="lazy"></div>
+  <figcaption>Nodes do the work, edges set the order, conditional edges decide, and the state carries data through the graph.</figcaption>
+</figure>
+<section><h2>Colour key for every graph</h2><ul class="keys"><li><i class="sw job" aria-hidden="true"></i>Node <span>a step</span></li><li><i class="sw fork" aria-hidden="true"></i>Conditional edge <span>a decision</span></li><li><i class="sw memory" aria-hidden="true"></i>State <span>data and checkpoints</span></li><li><i class="sw human" aria-hidden="true"></i>Interrupt <span>a person approves</span></li><li><i class="sw ai" aria-hidden="true"></i>LLM call <span>a model decides</span></li></ul></section>
+<section><h2>The eleven lessons</h2><ol class="lessons"><li><a class="card" href="01-hello-graph.html">
+  <span class="num">LESSON 01</span>
+  <span class="t">Your first graph</span>
+  <span class="thumb"><img src="illustrations/01-state-node.jpg" alt="A CI step receives a test-run record and adds one field, such as a build ID, before passing it on." width="1400" height="788" loading="lazy"></span>
+  <p class="i">A graph is a set of nodes joined by edges. Every node reads the shared state and returns only what it changed.</p>
+  <span class="badge k-none">No API key needed</span>
+</a></li><li><a class="card" href="02-linear-pipeline.html">
+  <span class="num">LESSON 02</span>
+  <span class="t">A sequential pipeline</span>
+  <span class="thumb"><img src="illustrations/02-test-lifecycle.jpg" alt="Every Playwright test has a lifecycle: set up the browser, run the test, clean up. Each stage records what it did." width="1400" height="788" loading="lazy"></span>
+  <p class="i">Edges run nodes in order. Each step adds its result to the state, and nothing is lost on the way.</p>
+  <span class="badge k-none">No API key needed</span>
+</a></li><li><a class="card" href="03-conditional-edge.html">
+  <span class="num">LESSON 03</span>
+  <span class="t">Conditional routing</span>
+  <span class="thumb"><img src="illustrations/03-result-router.jpg" alt="A CI result router: passed tests go to the dashboard, failures become Jira bugs, flaky tests move to quarantine." width="1400" height="788" loading="lazy"></span>
+  <p class="i">A router function reads the state and returns the name of the next node. Decisions live in that one function.</p>
+  <span class="badge k-none">No API key needed</span>
+</a></li><li><a class="card" href="04-loop-retry.html">
+  <span class="num">LESSON 04</span>
+  <span class="t">Retries with a limit</span>
+  <span class="thumb"><img src="illustrations/04-retry-limit.jpg" alt="Like Playwright&#x27;s retries: rerun a failing test up to three times. A pass after a failure marks the test as flaky." width="1400" height="788" loading="lazy"></span>
+  <p class="i">An edge can point back to an earlier node. That makes a loop, and every loop needs a cap.</p>
+  <span class="badge k-none">No API key needed</span>
+</a></li><li><a class="card" href="05-parallel-reducer.html">
+  <span class="num">LESSON 05</span>
+  <span class="t">Parallel branches and reducers</span>
+  <span class="thumb"><img src="illustrations/05-parallel-suites.jpg" alt="API, UI and performance suites run in parallel, and their results merge into one release report." width="1400" height="788" loading="lazy"></span>
+  <p class="i">Independent nodes run at the same time. A reducer defines how their results merge into one key.</p>
+  <span class="badge k-none">No API key needed</span>
+</a></li><li><a class="card" href="06-checkpointer-memory.html">
+  <span class="num">LESSON 06</span>
+  <span class="t">Checkpoints and memory</span>
+  <span class="thumb"><img src="illustrations/06-checkpoints.jpg" alt="The nightly regression and the smoke run keep separate histories, like two CI pipelines that never overwrite each other." width="1400" height="788" loading="lazy"></span>
+  <p class="i">A checkpointer saves the state after every step. Each thread_id keeps its own history.</p>
+  <span class="badge k-none">No API key needed</span>
+</a></li><li><a class="card" href="07-human-in-the-loop.html">
+  <span class="num">LESSON 07</span>
+  <span class="t">Human approval gates</span>
+  <span class="thumb"><img src="illustrations/07-approval-gate.jpg" alt="Before quarantining tests, the pipeline waits for a QA lead to approve, like a manual gate before a production deploy." width="1400" height="788" loading="lazy"></span>
+  <p class="i">interrupt() pauses the graph and waits for a person. Command(resume=...) continues it with their answer.</p>
+  <span class="badge k-none">No API key needed</span>
+</a></li><li><a class="card" href="08-llm-node.html">
+  <span class="num">LESSON 08</span>
+  <span class="t">An LLM inside a node</span>
+  <span class="thumb"><img src="illustrations/08-ai-triage.jpg" alt="AI-assisted triage: read a failure log, classify it as a product bug, test bug, environment issue or flake, and route it to the right team." width="1400" height="788" loading="lazy"></span>
+  <p class="i">A node can call an LLM. Its structured answer decides which edge the graph takes next.</p>
+  <span class="badge k-req">Needs GROQ_API_KEY</span>
+</a></li><li><a class="card" href="09-react-agent.html">
+  <span class="num">LESSON 09</span>
+  <span class="t">The ReAct agent loop</span>
+  <span class="thumb"><img src="illustrations/09-agent-loop.jpg" alt="A QA assistant answers &quot;Is login_redirect flaky?&quot; by checking the test history and the last error before it replies." width="1400" height="788" loading="lazy"></span>
+  <p class="i">The model reasons, calls a tool, reads the result, and repeats until it can answer.</p>
+  <span class="badge k-req">Needs GROQ_API_KEY</span>
+</a></li><li><a class="card" href="10-flaky-analyzer.html">
+  <span class="num">LESSON 10</span>
+  <span class="t">Flaky test analyzer</span>
+  <span class="thumb"><img src="illustrations/10-run-compare.jpg" alt="Compare two CI runs of the same suite: a test that passed in one run and failed in the other is flaky." width="1400" height="788" loading="lazy"></span>
+  <p class="i">Chapter 5&#x27;s flaky test finder, rebuilt with a decision, an approval pause and an optional LLM explanation.</p>
+  <span class="badge k-opt">API key optional</span>
+</a></li><li class="featured"><a class="card" href="11-capstone.html">
+  <span class="num">LESSON 11 &middot; FINAL PROJECT</span>
+  <span class="t">From Jira ticket to test report</span>
+  <span class="thumb"><img src="illustrations/11-qa-pipeline.jpg" alt="An end-to-end QA pipeline: the ticket becomes a reviewed test plan, the plan runs in Playwright, and every failure is triaged in one report." width="1400" height="788" loading="lazy"></span>
+  <p class="i">Give it a Jira ticket. It plans the tests, runs them in a browser, and explains what failed and why.</p>
+  <span class="badge k-req">Needs GROQ_API_KEY</span>
+</a></li></ol></section>
+<section class="try">
+  <h2>Run the scripts</h2>
+  <pre class="term"><span class="cmd">$ cd chapter_18_LangGraph
+$ python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements.txt
+$ source .venv/bin/activate &amp;&amp; cd src/chapters
+$ python 001_Hello_Graph.py
+$ cd ../../capstone && python pipeline.py VWO-105</span></pre>
+  <p class="fine">Lessons 1 to 7 need no API key. For 8, 9 and the capstone, copy <code>.env.sample</code> to <code>.env</code> and add a free Groq key. The capstone also needs <code>pip install -r capstone/requirements.txt</code> and <code>playwright install chromium</code>.</p>
+</section>
+</main>
+</body>
+</html>

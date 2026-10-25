@@ -1,0 +1,5 @@
+# Versions this chapter was tested against (Python 3.12).
+langgraph==1.2.12
+langchain-core==1.6.5
+langchain-groq==1.1.3
+python-dotenv==1.2.3
