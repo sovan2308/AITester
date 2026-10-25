@@ -57,6 +57,10 @@ __pycache__/
 # LangFlow local runtime state (Docker volume + Chroma dumps, ~150MB)
 chapter_05_AI_Agents_LangFlow/langflow-data/
 chapter_05_AI_Agents_LangFlow/chroma_backups/
+
+# n8n local runtime state (Docker bind mounts): workflows DB, saved credentials and the key that decrypts them
+chapter_04_AI_Agents_n8n/n8n-data/
+chapter_04_AI_Agents_n8n/n8n-files/
 .env
 # DeepEval local provider config, run cache and telemetry
 **/.deepeval/

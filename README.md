@@ -666,6 +666,15 @@ mindmap
 │   │   └── fixtures/              Offline Jira tickets for when the token expires
 │   └── .env                       GROQ + Google API keys, model ids (gitignored)
 │
+├── chapter_18_LangGraph/          Graphs: state, branches and loops
+│   └── src/
+│       ├── 001_Hello_Graph.py     One node between START and END
+│       ├── 002_Linear_Pipeline.py setup -> execute -> teardown
+│       ├── 003_Conditional_Edge.py  A router that picks the next node
+│       ├── 004_Loop_Retry.py      An edge pointing backwards, with a cap
+│       ├── Project_PW_FlakyFinder.py  The retry loop around REAL Playwright
+│       └── tests/test_login.py    Two live tests: one passes, one always fails
+│
 └── Project_Job_TRACKERAI/         Local-first job application tracker
     ├── README.md
     ├── package.json
@@ -3063,6 +3072,72 @@ Read `chapter_17_LangChain/E2E_QA_Pipeline.md` for the full step-by-step write-u
 
 ---
 
+## Chapter 18 - LangGraph (State, Branches and Loops)
+
+**Concept:** LangGraph is LangChain's graph runtime. You declare a typed state, write nodes as plain functions that return only the keys they changed, and wire them with edges. An edge may point *backwards*, which is how you get a retry loop.
+
+**Why:** Chapter 17's agents decide everything themselves, which is powerful and unpredictable. A graph puts the control flow back in Python: the model still reasons inside a node, but *what runs next* is something you can read, diagram and test.
+
+**Q&A - the three ideas:**
+- **Q: What is "state"?** A: A `TypedDict` passed between nodes, the backpack. A node returns a partial dict and LangGraph merges it in, so `002` ends with four keys even though each node returned one.
+- **Q: How is this different from LangFlow (chapter 05)?** A: LangFlow draws pipelines; loops and conditional routing are awkward there. `add_conditional_edges` pointing back at an earlier node is a first-class loop, which is exactly what a retry needs.
+- **Q: Do I need an API key?** A: Not for `001`-`004` or the Playwright project. There is no LLM in them, so they run offline and instantly. That makes them safe to run live in a class.
+
+```mermaid
+flowchart TD
+    S["START"] --> RT["run_tests<br/>pytest drives Chromium"]
+    RT --> RR["read_report<br/>parse the JUnit XML"]
+    RR --> Q{"should_retry?"}
+    Q -->|"failures left<br/>and attempts &lt; cap"| RT
+    Q -->|"green, or cap reached"| SUM["summarise"]
+    SUM --> E["END"]
+```
+
+### Project - the Playwright Flaky Finder
+
+`src/Project_PW_FlakyFinder.py` is lesson `004`'s retry loop with the simulation taken out. Real pytest, real Chromium, real TTACart. Two tests: `test_valid_login` uses `standard_user` / `tta_secret` and passes; `test_invalid_login` uses junk credentials and then asserts it reached `/inventory`, so it fails every single time on purpose. A test that goes green on a retry is **FLAKY**; one that stays red is a **REAL FAILURE**, and telling those apart is the whole point of the loop.
+
+```python
+def should_retry(state: State) -> Literal["run_tests", "summarise"]:
+    """The conditional edge. Pointing back at run_tests is what makes it a loop."""
+    if not state["failed"]:
+        return "summarise"
+    if state["attempts"] < MAX_ATTEMPTS:
+        return "run_tests"          # <- backwards, into the node we just left
+    return "summarise"
+```
+
+**Run it:**
+
+```bash
+cd chapter_18_LangGraph
+.venv/bin/python3.13 src/001_Hello_Graph.py          # state merging
+.venv/bin/python3.13 src/002_Linear_Pipeline.py      # setup -> execute -> teardown
+.venv/bin/python3.13 src/Project_PW_FlakyFinder.py   # the real thing
+```
+
+```
+-- attempt 1: pytest test_login.py
+   PASS  test_valid_login[chromium]
+   FAIL  test_invalid_login[chromium]
+
+-- attempt 2: pytest test_login.py::test_invalid_login[chromium]
+   FAIL  test_invalid_login[chromium]
+
+VERDICT after 2 attempt(s)
+REAL FAILURE  test_invalid_login[chromium]  (red in all 2 attempt(s))
+STABLE PASS   test_valid_login[chromium]
+```
+
+**Three details worth stealing:**
+- **The report is the only evidence.** `run_tests` ignores pytest's exit code on purpose and `read_report` parses the JUnit XML instead. That is what makes it an agent reading a report rather than a shell script checking `$?`, and it is where an LLM node would plug in.
+- **Retries re-run only what failed.** Attempt 2 runs one test id, not the whole file, which is what you would do by hand.
+- **`--junitxml` beats a JSON reporter here.** It ships with pytest and `xml.etree` is stdlib, so there is one less thing to install in a classroom.
+
+Set `HEADED = True` (the default) to watch the browser, with `SLOW_MO_MS` to make it followable; `False` is faster and is what CI needs. **Use `.venv/bin/python3.13`, not `.venv/bin/python`**: this venv's bare `python` is an Anaconda 3.12 that cannot see the 3.13 site-packages where pytest lives.
+
+---
+
 ## Project - Job Tracker AI
 
 `Project_Job_TRACKERAI/` is a local-first job application tracker built as a Vite + React single-page app. It stores every job card in the browser with IndexedDB through the `idb` library, so there is no backend, authentication, or external database.
@@ -3139,6 +3214,8 @@ You can read it linearly (chapter 01 → 07) or jump straight to a project:
 - **"Why is my Gemini response printing `[{'type': 'text', ...}]`?"** → `chapter_17_LangChain/src/chapters/002_Hello_Gemini.py` — use `message.text`, not `.content`.
 - **"I want the answer to stream in token by token."** → `chapter_17_LangChain/src/chapters/003_Hello_Gemini_Steam.py`.
 - **"I want the whole LangChain chapter as readable notes."** → `chapter_17_LangChain/LangChain_Notes.html` — open in a browser.
+- **"I want to retry a failing test automatically and know if it is flaky."** → `chapter_18_LangGraph/src/Project_PW_FlakyFinder.py` — a LangGraph loop around real Playwright.
+- **"I want control flow I can read, not an agent that decides everything."** → `chapter_18_LangGraph/src/` — state, conditional edges and loops in four small scripts.
 - **"I want a Jira ticket to become a plan, a browser run and a Slack post."** → `chapter_17_LangChain/src/chapters/013_FULL_E2E_Fetch_JIRA_Local_RAG_QA_Orch.py` — six stages, two human gates.
 - **"I want a RAG that spots duplicate test cases before I write new ones."** → `chapter_17_LangChain/src/chapters/tta_rag.py` — 20 cases, fastembed, no server.
 - **"I want to see an MCP integration stubbed before the credentials exist."** → `chapter_17_LangChain/src/chapters/slack_tools.py` — prints the payload, never sends.
@@ -3179,6 +3256,7 @@ You can read it linearly (chapter 01 → 07) or jump straight to a project:
 - For Chapter 12 CrewAI: **Python 3.10+**, `python3 -m pip install crewai python-dotenv`, and a `GROQ_API_KEY` in `chapter_12_CrewAI/.env` (free tier works). The model id `openai/gpt-oss-120b` must match your Groq console.
 - For Chapter 15 DeepEval: **Python 3.11+**, a venv, and `pip install -U deepeval requests`. Needs an API key for whichever judge model you configure — `OPENAI_API_KEY`, or a Groq key registered with `deepeval set-local-model`. Every metric assertion is a paid LLM call.
 - For Chapter 17 LangChain: **Python 3.11+** and a venv, then `pip install -U langchain langchain-google-genai langchain-groq langchain-deepseek playwright python-dotenv` plus `playwright install chromium` for `009`/`010` (LangChain **1.x** - `create_agent` does not exist in 0.3; Playwright **1.62**, the current release). Needs `GROQ_API_KEY` + `LLM_MODEL` for `001`, and `GOOGLE_API_KEY` + `GEMINI_LLM_MODEL` for `002`-`008`, and `DEEPSEEK_API` for `010`-`013`, in `chapter_17_LangChain/.env` (gitignored). `013` also wants `fastembed` (`pip install -U fastembed`) and reads Jira credentials from `chapter_13_CREW_AI_QA_Pipeline/.env`, falling back to `fixtures/<KEY>.json` when the token has expired.
+- For Chapter 18 LangGraph: **Python 3.11+**, then `pip install -U langgraph pytest pytest-playwright` and `playwright install chromium`. Scripts `001`-`004` and the Flaky Finder need **no API key** - there is no LLM in them.
 - For Job Tracker AI: **Node.js 20.19+ or 22.12+** and npm for Vite 8.
 
 ## Chapter History
